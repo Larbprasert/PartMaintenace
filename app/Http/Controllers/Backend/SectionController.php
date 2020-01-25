@@ -5,7 +5,8 @@ use App\Http\Controllers\Controller;
 
 use DB;
 use Log;
-// use App\User;
+use App\Section;
+use App\Department;
 
 use Illuminate\Http\Request;
 use Auth;
@@ -21,44 +22,47 @@ class SectionController extends Controller
      */
     public function index()
     {
-        // $building = Building::whereNull('buildingDeleteDate')->get();
+        $section    = Section::get();
+        $department = Department::get();
+        // $section = DB::table('tb_section')->get();
+        // $section = Building::where('activeFlag', '=', 1)->get();
         // $project = Project::whereNull('projDeleteDate')->get();
 
         $data = array(
-            'id'       => 'section'
+            'id'         => 'section',
+            'department' => $department
         );
 
         return view('backend/section/index', $data);
     }
 
 
-    // public function datatable()
-    // {
-    //     // Query data showing any material
-    //     $bom = DB::table('billofmaterial')
-    //                 ->leftJoin('building', 'billofmaterial.bom_buildingID', '=', 'building.buildingID')
-    //                 ->leftJoin('projectbom', 'billofmaterial.bom_pbomID', '=', 'projectbom.pBOMID')
-    //                 ->whereNull('bomDeleteDate')
-    //                 ->orderBy('bomID')
-    //                 ->get();
+    public function datatable()
+    {
+        // Query data showing data is not deleted
+        $section = Section::get();
 
-    //     foreach ($bom as $key=>$item) {
-    //         Log::info('name : '. $item->bomName. ' id : '. $item->bomID .' key : '. $key);
-    //         $collection[] = array(
-    //             'bomID'             => $item->bomID,
-    //             'bomName'           => "<a href=".route('bom.show', ['id' => $item->bomID]).">".$item->bomName."</a>",
-    //             'bomBuilding'       => $item->buildingTitle,
-    //             'bomUpdateDate'     => date("Y-m-d H:i:s", $item->bomUpdateDate),
-    //             'action'            => '<button onclick="editFunction('.$item->bomID.')" type="button" id="editButton" class="btn btn-outline-warning btn-sm editButton" value='.$item->bomID.' data-toggle="modal" data-target="#modaledit"> Edit</button>',
-    //         );
-    //     }
-    //     $collections = json_encode(array( "data" => $collection ));
+        foreach ($section as $key=>$item) {
+            $collection[] = array(
+                'sectionID'    => $item->sectionId,
+                'sectionEn'    => $item->sectionEn,
+                'sectionTh'    => $item->sectionTh,
+                'deptId'       => $item->deptId,
+                'activeFlag'   => $item->activeFlag,
+                'createDate'   => $item->createDate,
+                'createBy'     => $item->createBy,
+                'updateDate'   => $item->updateDate,
+                'updateBy'     => $item->updateBy,
+                'action'       => '<button onclick="editFunction('.$item->sectionId.')" type="button" id="editButton" class="btn btn-outline-warning btn-sm editButton" value='.$item->sectionId.' data-toggle="modal" data-target="#modaledit">Edit</button>'  .'<button onclick="deleteFunction('.$item->sectionId.', '.$key.' )" type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#modaldelete">Delete</button>'
+            );
+        }
+        $collections = json_encode(array( "data" => $collection ));
 
-    //     return $collections;
-    // }
+        return $collections;
+    }
 
-    // public function create(Request $request)
-    // {   
+    public function create(Request $request)
+    {   
     //     // Begin transaction
     //     DB::beginTransaction();
 
@@ -89,8 +93,8 @@ class SectionController extends Controller
     //     }
 
 
-    //     return 1;
-    // }
+        return 1;
+    }
 
     // public function createcat(Request $request)
     // {
@@ -179,48 +183,21 @@ class SectionController extends Controller
      * @param  \App\Meeting_room  $meeting_room
      * @return \Illuminate\Http\Response
      */
-    // public function edit($id)
-    // {
-    //     Log::info('id : '. $id);
+    public function edit($id)
+    {
+        $section = Section::where('sectionId', $id)->first();
 
-    //     $source = DB::table('billofmaterial')
-    //                 ->select('bomID', 'bomName', 'bom_buildingID', 'bom_pbomID')
-    //                 ->where('bomID', '=', $id)->first();
+        Log::info('section : '. print_r($section, true));
 
-    //     // Log::info('source : '. print_r($source, true));
+        $data = array(
+            'sectionId'  => $section->sectionId,
+            'sectionEn'  => $section->sectionEn,
+            'sectionTh'  => $section->sectionTh,
+            'deptId'     => $section->deptId
+        );
 
-    //     if (empty($source->bom_pbomID)) {
-
-    //         $projectID = 0;
-
-    //     } else {
-
-    //         $projID = DB::table('projectbom')
-    //                     ->select('pBOM_projID')
-    //                     ->where('pBOMID', '=', $source->bom_pbomID)->first();
-
-    //         // Log::info('projID : '. print_r($projID, true));
-
-    //         $project = DB::table('project')
-    //                     ->where('projID', '=', $projID->pBOM_projID)
-    //                     ->first();
-
-    //         // Log::info('project : '. print_r($project, true));
-
-    //         $projectID = $project->projID;
-    //     }
-
-    //     // $source = DB::table('')->select('invID', 'invPlace', 'invAddress')->where('invID', '=', $id)->first();
-
-    //     $data = array(
-    //         'bomID'      => $source->bomID,
-    //         'bomName'    => $source->bomName,
-    //         'buildingID' => $source->bom_buildingID,
-    //         'projID'     => $projectID
-    //     );
-
-    //     return $data;
-    // }
+        return $data;
+    }
 
     /**
      * Update the specified resource in storage.
