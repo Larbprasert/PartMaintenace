@@ -10,7 +10,6 @@ class equiptmentType extends Model  {
     protected $table = 'tb_equipmenttype';
     public $primaryKey = 'equipTypeId';
     protected $softDelete = false;
-
 }
 
 ?>
